@@ -31,9 +31,10 @@ class BattleCalculatorTest {
     final GameData gameData = TestMapGameData.REVISED.getGameData();
     final Territory germany = gameData.getMap().getTerritory("Germany");
     final Collection<Unit> defendingUnits = new ArrayList<>(germany.getUnits());
+
     final GamePlayer russians = russians(gameData);
     final GamePlayer germans = germans(gameData);
-    final List<Unit> attackingUnits = infantry(gameData).create(100, russians);
+    final List<Unit> attackingUnits = infantry(gameData).create(1000, russians);
     final List<Unit> bombardingUnits = List.of();
     final BattleCalculator calculator = new BattleCalculator(gameData, false, new Version("2.0.0"));
     final AggregateResults results =
@@ -46,7 +47,7 @@ class BattleCalculatorTest {
             bombardingUnits,
             TerritoryEffectHelper.getEffects(germany),
             false,
-            200);
+            1);
     assertTrue(results.getAttackerWinPercent() > 0.99);
     assertTrue(results.getDefenderWinPercent() < 0.1);
     assertTrue(results.getDrawPercent() < 0.1);
@@ -77,7 +78,7 @@ class BattleCalculatorTest {
             bombardingUnits,
             TerritoryEffectHelper.getEffects(eastCanada),
             false,
-            1000);
+            100);
     assertEquals(0.8, results.getAttackerWinPercent(), 0.10);
     assertEquals(0.16, results.getDefenderWinPercent(), 0.10);
   }
