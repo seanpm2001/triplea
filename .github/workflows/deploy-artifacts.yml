@@ -39,4 +39,18 @@ jobs:
           prerelease: ${{ env.is_prerelease }}
           commit: ${{ github.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update maps on website
+        run: .build/update-maps-on-website/run
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+          PUSH_TO_WEBSITE_TOKEN: ${{ secrets.PUSH_TO_WEBSITE_TOKEN }}
+      - name: Run Ansible to Deploy
+        run: |
+          pip install ansible
+          cd infrastructure
+          echo "$ANSIBLE_VAULT_PASSWORD" > vault_password
+          echo "TODO: deployment to production disabled pending testing & stabilization"
+          echo ./run_ansible --environment production
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
 
