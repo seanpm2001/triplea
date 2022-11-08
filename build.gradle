@@ -97,6 +97,10 @@ subprojects {
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/triplea-game/maps-client")
+            credentials {
+                username = project.findProperty("triplea.github.username")
+                password = project.findProperty("triplea.github.access.token")
+            }
         }
     }
 
