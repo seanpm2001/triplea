@@ -94,9 +94,14 @@ subprojects {
 
     repositories {
         mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/triplea-game/maps-client")
+        }
     }
 
     dependencies {
+        implementation 'org.triplea:maps-client:0.0.0'
         implementation "ch.qos.logback:logback-classic:$logbackClassicVersion"
         implementation "com.google.guava:guava:$guavaVersion"
         testImplementation "com.github.npathai:hamcrest-optional:$hamcrestOptionalVersion"
