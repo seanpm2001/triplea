@@ -1,10 +1,10 @@
 package games.strategy.engine.framework.startup.mc;
 
-import games.strategy.engine.framework.HeadlessAutoSaveType;
 import games.strategy.engine.framework.message.PlayerListing;
 import games.strategy.engine.message.IRemote;
 import games.strategy.engine.message.RemoteActionCode;
 import games.strategy.net.INode;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,19 +38,16 @@ public interface IServerStartupRemote extends IRemote {
   boolean getIsServerHeadless();
 
   @RemoteActionCode(6)
-  Set<String> getAvailableGames();
+  List<String> getAvailableGames();
+
+  @RemoteActionCode(60)
+  List<String> getAvailableSaves();
 
   @RemoteActionCode(0)
   void changeServerGameTo(String gameName);
 
-  @RemoteActionCode(3)
-  void changeToLatestAutosave(HeadlessAutoSaveType typeOfAutosave);
-
   @RemoteActionCode(2)
   void changeToGameSave(byte[] bytes, String fileName);
-
-  @RemoteActionCode(10)
-  byte[] getSaveGame();
 
   @RemoteActionCode(7)
   byte[] getGameOptions();
@@ -70,8 +67,6 @@ public interface IServerStartupRemote extends IRemote {
     void enablePlayer(final String playerName);
 
     boolean isGameStarted(final INode newNode);
-
-    byte[] getSaveGame();
 
     byte[] getGameOptions();
   }

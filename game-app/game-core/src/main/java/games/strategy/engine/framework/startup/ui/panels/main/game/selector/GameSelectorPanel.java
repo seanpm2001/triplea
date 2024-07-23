@@ -6,7 +6,6 @@ import static org.triplea.swing.SwingComponents.DialogWithLinksTypes;
 import games.strategy.engine.data.GameData;
 import games.strategy.engine.data.properties.IEditableProperty;
 import games.strategy.engine.data.properties.PropertiesUi;
-import games.strategy.engine.framework.HeadlessAutoSaveType;
 import games.strategy.engine.framework.map.download.DownloadMapsWindow;
 import games.strategy.engine.framework.map.file.system.loader.InstalledMapsListing;
 import games.strategy.engine.framework.startup.mc.ClientModel;
@@ -21,7 +20,6 @@ import games.strategy.triplea.UrlConstants;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +31,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import org.triplea.config.product.ProductVersionReader;
 import org.triplea.swing.DialogBuilder;
@@ -55,18 +52,19 @@ public final class GameSelectorPanel extends JPanel implements Observer {
   private final JLabel nameText = new JLabel();
   private final JLabel saveGameText = new JLabel();
   private final JLabel roundText = new JLabel();
+
+  private final JButton loadNewGame =
+      new JButtonBuilder()
+          .title("New Game")
+          .toolTip("Start a new game, select from games installed on the server.")
+          .build();
+
   private final JButton loadSavedGame =
       new JButtonBuilder()
           .title("Open Saved Game")
-          .toolTip("Open a previously saved game, or an autosave.")
+          .toolTip("Open a game saved from your computer.")
           .build();
-  private final JButton loadNewGame =
-      new JButtonBuilder()
-          .title("Select Game")
-          .toolTip(
-              "<html>Select a game from all the maps/games that come with TripleA, "
-                  + "<br>and the ones you have downloaded.</html>")
-          .build();
+
   private final JButton mapOptions =
       new JButtonBuilder()
           .title("Game Options")
@@ -131,6 +129,9 @@ public final class GameSelectorPanel extends JPanel implements Observer {
     add(loadSavedGame, buildGridRow(0, row, new Insets(0, 10, 10, 10)));
     row++;
 
+    add(loadAutoSave, buildGridRow(0, row, new Insets(0, 10, 10, 10)));
+    row++;
+
     final JButton downloadMapButton =
         new JButtonBuilder()
             .title("Download Maps")
@@ -170,6 +171,7 @@ public final class GameSelectorPanel extends JPanel implements Observer {
             }
           }
         });
+
     loadSavedGame.addActionListener(
         e -> {
           if (canSelectLocalGameData()) {
@@ -177,41 +179,12 @@ public final class GameSelectorPanel extends JPanel implements Observer {
           } else if (canChangeHostBotGameData()) {
             final ClientModel clientModelForHostBots = model.getClientModelForHostBots();
             if (clientModelForHostBots != null) {
-              final JPopupMenu menu = new JPopupMenu();
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeGameToSaveGameClientAction(
-                      JOptionPane.getFrameForComponent(this)));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.DEFAULT));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.ODD_ROUND));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.EVEN_ROUND));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.END_TURN));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.BEFORE_BATTLE));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.AFTER_BATTLE));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.AFTER_COMBAT_MOVE));
-              menu.add(
-                  clientModelForHostBots.getHostBotChangeToAutosaveClientAction(
-                      GameSelectorPanel.this, HeadlessAutoSaveType.AFTER_NON_COMBAT_MOVE));
-              menu.add(
-                  clientModelForHostBots.getHostBotGetGameSaveClientAction(GameSelectorPanel.this));
-              final Point point = loadSavedGame.getLocation();
-              menu.show(GameSelectorPanel.this, point.x + loadSavedGame.getWidth(), point.y);
+              clientModelForHostBots.executeChangeGameToSaveGameClientAction(
+                  JOptionPane.getFrameForComponent(this));
             }
           }
         });
+
     mapOptions.addActionListener(
         e -> {
           if (canSelectLocalGameData()) {
@@ -308,8 +281,10 @@ public final class GameSelectorPanel extends JPanel implements Observer {
 
           final boolean canSelectGameData = canSelectLocalGameData();
           final boolean canChangeHostBotGameData = canChangeHostBotGameData();
-          loadSavedGame.setEnabled(canSelectGameData || canChangeHostBotGameData);
+
           loadNewGame.setEnabled(canSelectGameData || canChangeHostBotGameData);
+          loadSavedGame.setEnabled(canSelectGameData || canChangeHostBotGameData);
+          loadAutoSave.setVisible(canChangeHostBotGameData());
           // Disable game options if there are none.
           mapOptions.setEnabled(
               canChangeHostBotGameData

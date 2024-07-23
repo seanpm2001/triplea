@@ -14,6 +14,7 @@ import games.strategy.engine.framework.GameRunner;
 import games.strategy.engine.framework.I18nResourceBundle;
 import games.strategy.engine.framework.map.file.system.loader.ZippedMapsExtractor;
 import games.strategy.triplea.settings.ClientSetting;
+import java.nio.file.Path;
 import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.triplea.config.product.ProductVersionReader;
@@ -50,6 +51,8 @@ public final class HeadlessGameRunner {
                     + ProductVersionReader.getCurrentVersion().getMinor())
             .build());
 
+    ClientSetting.mapFolderOverride.setValue(Path.of(System.getenv("MAPS_FOLDER")));
+
     ArgParser.handleCommandLineArgs(args);
     handleHeadlessGameServerArgs();
     ZippedMapsExtractor.builder()
@@ -68,6 +71,7 @@ public final class HeadlessGameRunner {
       HeadlessGameServer.runHeadlessGameServer();
     } catch (final Exception e) {
       log.error("Failed to run game server", e);
+      ExitStatus.FAILURE.exit();
     }
   }
 

@@ -15,6 +15,7 @@ import org.triplea.java.ThreadRunner;
 public class SetMapClientAction {
 
   final List<String> availableGames;
+  final List<String> availableSaves;
   private final Component parent;
   private final IServerStartupRemote serverStartupRemote;
 
@@ -24,6 +25,8 @@ public class SetMapClientAction {
     this.serverStartupRemote = serverStartupRemote;
     this.availableGames =
         serverStartupRemote.getAvailableGames().stream().sorted().collect(Collectors.toList());
+    this.availableSaves =
+        serverStartupRemote.getAvailableSaves().stream().sorted().collect(Collectors.toList());
   }
 
   public void run() {
